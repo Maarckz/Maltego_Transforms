@@ -263,14 +263,19 @@ class DNSDumpsterParser:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("target", help="Domínio alvo")
+    parser.add_argument("-o", "--output", help="Salva os subdomínios em um txt para o reNgine", default=None)
     args = parser.parse_args()
 
     dns = DNSDumpsterParser()
     result = dns.query_domain(args.target)
 
     if result:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-
+        if args.output:
+            with open(args.output, 'w') as f:
+                for record in result.get("a_records", []):
+                    f.write(record["host"] + "\n")
+        else:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()
